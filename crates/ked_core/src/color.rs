@@ -1,3 +1,7 @@
+/*
+ * source: https://github.com/not-fl3/macroquad
+ */
+
 use crate::*;
 
 /// Color types and helpers.
