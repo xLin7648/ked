@@ -24,7 +24,7 @@ pub use env_logger;
 pub use glam::*;
 pub use winit::event_loop::*;
 pub use ked_main_macro::ked_main;
-
+pub use wgpu::{PresentMode, PowerPreference};
 
 use pollster::*;
 use parking_lot::*;

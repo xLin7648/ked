@@ -4,31 +4,6 @@
 
 use crate::*;
 
-fn power_preference_to_wgpu(
-    pref: PowerPreference,
-) -> wgpu::PowerPreference {
-    match pref {
-        PowerPreference::None => wgpu::PowerPreference::None,
-        PowerPreference::LowPower => wgpu::PowerPreference::LowPower,
-        PowerPreference::HighPerformance => {
-            wgpu::PowerPreference::HighPerformance
-        }
-    }
-}
-
-fn vsync_mode_to_wgpu(
-    mode: PresentMode,
-) -> wgpu::PresentMode {
-    match mode {
-        PresentMode::Fifo => wgpu::PresentMode::Fifo,
-        PresentMode::Mailbox => wgpu::PresentMode::Mailbox,
-        PresentMode::AutoVsync => wgpu::PresentMode::AutoVsync,
-        PresentMode::Immediate => wgpu::PresentMode::Immediate,
-        PresentMode::AutoNoVsync => wgpu::PresentMode::AutoNoVsync,
-        PresentMode::FifoRelaxed => wgpu::PresentMode::FifoRelaxed,
-    }
-}
-
 pub async fn create_graphics_context(
     window: Arc<Window>,
     window_config: Arc<Mutex<WindowConfig>>
@@ -48,9 +23,7 @@ pub async fn create_graphics_context(
 
     let adapter = instance
         .request_adapter(&wgpu::RequestAdapterOptions {
-            power_preference: power_preference_to_wgpu(
-                window_config.power_preference,
-            ),
+            power_preference: window_config.power_preference,
             compatible_surface: Some(&surface),
             force_fallback_adapter: false,
         })
@@ -105,7 +78,7 @@ pub async fn create_graphics_context(
     let surface_usage =
         wgpu::TextureUsages::RENDER_ATTACHMENT;
 
-    let desired_present_mode = vsync_mode_to_wgpu(window_config.vsync_mode);
+    let desired_present_mode = window_config.vsync_mode;
 
     let present_mode = if caps.present_modes.contains(&desired_present_mode) {
         desired_present_mode
