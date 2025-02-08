@@ -1,0 +1,27 @@
+[package]
+name = "ked_core"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+log = "0.4.25"
+pollster = "0.4.0"
+
+glam = "0.29.2"
+wgpu = "24.0.1"
+
+once_cell = "1.17.1"
+parking_lot = "0.12.1"
+
+ked_main_macro = { path = "../ked_main_macro" }
+
+[target.'cfg(target_os = "android")'.dependencies]
+android_logger = "0.14.1"
+winit = { version = "0.30.9", features = ["android-game-activity"] }
+
+[target.'cfg(not(target_os = "android"))'.dependencies]
+env_logger = "0.11.6"
+winit = "0.30.9"
