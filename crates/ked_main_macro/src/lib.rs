@@ -87,7 +87,6 @@ pub fn ked_main(attr: TokenStream, item: TokenStream) -> TokenStream {
                 .init();
 
             let event_loop = EventLoop::new().unwrap();
-            event_loop.set_control_flow(ControlFlow::Poll);
             ked_main_user(event_loop);
         }
 
@@ -110,7 +109,6 @@ pub fn ked_main(attr: TokenStream, item: TokenStream) -> TokenStream {
                 .build()
                 .unwrap();
             
-            event_loop.set_control_flow(ControlFlow::Poll);
             ked_main_user(event_loop);
         }
 

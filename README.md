@@ -24,8 +24,21 @@ ked ={ path = "ked根目录" }
 ```rust
 use ked::*;
 
+#[ked_main(LevelFilter::Info)]
+fn main(event_loop: EventLoop<()>) {
+    let mut window_config = WindowConfig::default();
+    window_config.clear_color = WHITE;
+
+    let game = MyGame::default();
+
+    App::new(game, window_config)
+        .run(event_loop, ControlFlow::Poll);
+}
+
 #[derive(Default)]
-pub struct MyGame;
+pub struct MyGame {
+    pub r: f32,
+}
 
 impl GameLoop for MyGame {
     fn start(&mut self, _c: &mut EngineContext) {
@@ -34,16 +47,6 @@ impl GameLoop for MyGame {
     fn update(&mut self, _c: &mut EngineContext) {
         _c.timer.println_time_data();
     }
-}
-
-#[ked_main(LevelFilter::Off)]
-fn main(event_loop: EventLoop<()>) {
-    let mut window_config = WindowConfig::default();
-    window_config.clear_color = WHITE;
-
-    let game = MyGame::default();
-
-    App::new(game, window_config).run(event_loop);
 }
 ```
 

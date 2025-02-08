@@ -25,7 +25,12 @@ impl App {
         }
     }
 
-    pub fn run(&mut self, event_loop: winit::event_loop::EventLoop<()>) {
+    pub fn run(
+        &mut self, 
+        event_loop: winit::event_loop::EventLoop<()>, 
+        control_flow: ControlFlow
+    ) {
+        event_loop.set_control_flow(control_flow);
         let _ = event_loop.run_app(self);
     }
 
@@ -55,6 +60,16 @@ impl App {
         window_attributes.fullscreen     = fullscreen;
     
         self.window = Some(Arc::new(event_loop.create_window(window_attributes).unwrap()));
+    }
+
+    fn init_wr(&mut self) {
+        self.wr = Some(
+            WgpuRenderer::new(
+                self.window.clone().unwrap(),
+                Arc::clone(&self.window_config),
+            )
+            .block_on()
+        );
     }
 
     fn get_components(&mut self) -> (
@@ -87,20 +102,20 @@ impl ApplicationHandler for App {
                     wr.context.resume(window.clone());
     
                     info!("Resumed");
+                } else {
+                    self.init_wr();
                 }
             } else {
-                // 从桌面回来不会执行
                 self.init_window(event_loop);
-    
-                self.wr = Some(WgpuRenderer::new(
-                    self.window.clone().unwrap(),
-                    Arc::clone(&self.window_config),
-                ).block_on());
+                self.init_wr();
 
-                let (game, timer, renderer) = self.get_components();
-                let mut c = EngineContext { renderer, timer };
-    
-                game.start(&mut c); // 调用 update 方法
+                // 在这里Start
+                {
+                    let (game, timer, renderer) = self.get_components();
+                    let mut c = EngineContext { renderer, timer };
+        
+                    game.start(&mut c);
+                }
     
                 info!("InitWindow");
             }
@@ -108,13 +123,13 @@ impl ApplicationHandler for App {
     
         // 在事件循环即将等待输入事件时调用
         fn about_to_wait(&mut self, _: &ActiveEventLoop) {
-            if let Some(wr) = &mut self.wr {
+            if self.wr.is_some() {
                 self.timer.update();
 
                 let (game, timer, renderer) = self.get_components();
                 let mut c = EngineContext { renderer, timer };
     
-                game.update(&mut c); // 调用 update 方法
+                game.update(&mut c);
         
                 self.renderer_update();
             }
@@ -147,7 +162,7 @@ impl ApplicationHandler for App {
         // 当应用程序被挂起时调用
         fn suspended(&mut self, _: &ActiveEventLoop) {
             if let Some(wr) = self.wr.as_mut() {
-                wr.context.surface = None;
+                wr.context.surface.take();
             }
             
             info!("Suspended");
